@@ -8,8 +8,8 @@ import (
 
 var (
 	path = flag.String("path", "", "path to watch")
-	r    = flag.Bool("r", false, "recursive")
-	ext  = flag.String("ext", "go", `watching file extensions. default: "go"`)
+	r    = flag.Bool("r", false, "is recursive watching needed")
+	ext  = flag.String("ext", "go", `file extensions to watch. can be a list with coma separator.`)
 )
 
 func main() {
