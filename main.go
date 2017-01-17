@@ -16,11 +16,8 @@ func main() {
 	flag.Parse()
 	if len(*path) > 0 {
 		extArr := strings.Split(*ext, ",")
-		var extMap map[string]bool
+		extMap := map[string]bool{}
 		for _, p := range extArr {
-			if extMap == nil {
-				extMap = make(map[string]bool)
-			}
 			if len(p) > 0 {
 				extMap[strings.TrimSpace(p)] = true
 			}

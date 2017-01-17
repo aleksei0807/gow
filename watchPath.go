@@ -21,13 +21,12 @@ func watchPath(path string, r bool, first bool, ext map[string]bool) {
 	var fullpath string
 	if first {
 		log.Printf("path: %s", path)
-		cmd := exec.Command("sh", "-c", "ls -d -1 $PWD")
-		out, err := cmd.CombinedOutput()
+		pwd, err := os.Getwd()
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		fullpath = gPath.Clean(strings.Split(string(out), "\n")[0] + "/" + path)
+		dir, _ := gPath.Split(path)
+		fullpath = gPath.Clean(pwd + "/" + dir)
 		log.Printf("fullpath: %s", fullpath)
 	} else {
 		fullpath = gPath.Clean(path)
