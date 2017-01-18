@@ -4,10 +4,11 @@ import (
 	"flag"
 	"log"
 	"strings"
+	"sync"
 )
 
 var (
-	path = flag.String("path", "", "path to watch")
+	path = flag.String("path", "./", "path to watch")
 	r    = flag.Bool("r", false, "is recursive watching needed")
 	ext  = flag.String("ext", "go", `file extensions to watch. can be a list with coma separator.`)
 )
@@ -24,6 +25,16 @@ func main() {
 		}
 
 		log.Printf("extensions: %v", extMap)
-		watchPath(*path, *r, true, extMap)
+		var wg sync.WaitGroup
+
+		var myParams = params{
+			path:   *path,
+			r:      *r,
+			extMap: extMap,
+		}
+
+		wg.Add(1)
+		watchPath(myParams, &wg, true)
+		wg.Wait()
 	}
 }

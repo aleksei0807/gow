@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	gPath "path"
 	"strings"
+	"sync"
 )
 
 func isTrueExt(name string, ext map[string]bool) bool {
@@ -17,9 +18,19 @@ func isTrueExt(name string, ext map[string]bool) bool {
 	return false
 }
 
-func watchPath(path string, r bool, first bool, ext map[string]bool) {
+var initParams params
+
+func watchPath(myParams params, wg *sync.WaitGroup, first bool) {
+	path := myParams.path
+	r := myParams.r
+	ext := myParams.extMap
+
 	var fullpath string
 	if first {
+		initParams = myParams
+
+		wg.Add(1)
+
 		log.Printf("path: %s", path)
 		pwd, err := os.Getwd()
 		if err != nil {
@@ -55,10 +66,17 @@ func watchPath(path string, r bool, first bool, ext map[string]bool) {
 						log.Fatal(err)
 					}
 					if fi.IsDir() {
-						watchPath(myPath, r, false, ext)
+						var newParams = params{
+							path:   myPath,
+							r:      r,
+							extMap: ext,
+						}
+
+						watchPath(newParams, wg, false)
 					} else {
 						if len(ext) < 1 || isTrueExt(p, ext) {
 							log.Printf("file: %s", myPath)
+							go watcher(myPath, initParams, wg)
 						}
 					}
 				}
@@ -81,6 +99,7 @@ func watchPath(path string, r bool, first bool, ext map[string]bool) {
 		} else {
 			if len(ext) < 1 || isTrueExt(path, ext) {
 				log.Printf("file: %s", fullpath)
+				go watcher(fullpath, initParams, wg)
 			}
 		}
 	}
